@@ -16,60 +16,67 @@
         <div class="qc selected failure">
             <span class="status">Failure</span>
             <span class="date">15/01/2020</span>
-            <span class="qctype">Patient Aggregation QC</span>
+            <span class="qctype clickable">Patient Aggregation QC</span>
             <span class="sel">selected</span>
         </div>
-        <div class="qc success">
+        <!-- <span class="arrow">&#8594</span> -->
+        <div class="qc unselected success">
             <span class="status">Success</span>
             <span class="date">15/01/2020</span>
-            <span class="qctype">Provider QC</span>
+            <span class="qctype clickable">Provider QC</span>
         </div>
-        <div class="qc failure">
+        <div class="qc unselected failure">
             <span class="status">Failure</span>
             <span class="date">15/01/2020</span>
-            <span class="qctype">Claim QC</span>
+            <span class="qctype clickable">Claim QC</span>
         </div>
     </div>
     <div class="qcruns">
-        <div class="failure">
+        <div class="unselected failure">
             <span class="status">Failure</span>
-            <span class="run-date">15/1/2020</span>
+            <span class="run-date clickable">15/1/2020</span>
         </div>
         <div class="selected failure">
             <span class="status">Failure</span>
-            <span class="run-date">8/1/2020</span>
+            <span class="run-date clickable">8/1/2020</span>
             <span class="sel">selected</span>
         </div>
-        <div class="success">
+        <div class="unselected success">
             <span class="status">Success</span>
-            <span class="run-date">1/1/2020</span>
+            <span class="run-date clickable">1/1/2020</span>
         </div>
     </div>
     <div class="checkresults">
-        <div class="success">
+        <div class="checkresult success clickable">
             <span class="check">Size within bounds</span>
             <span class="mark">&#x2713;</span>
         </div>
-        <div class="success">
+        <div class="checkresult success clickable">
             <span class="check">Matched overall expected</span>
             <span class="mark">&#x2713;</span>
         </div>
-        <div class="failure">
-            <span class="check">Min age check</span>
+        <div class="checkresult failure selected clickable">
+            <span class="check">Min age >18 check</span>
             <span class="mark">&#x2717;</span>
         </div>
-        <div class="success">
+        <div class="checkresult success clickable">
             <span class="check">Max age check</span>
             <span class="mark">&#x2713;</span>
         </div>
-        <div class="failure">
+        <div class="checkresult failure clickable">
             <span class="check">Some other check</span>
             <span class="mark">&#x2717;</span>
         </div>
-        <div class="success">
+        <div class="checkresult success clickable">
             <span class="check">Yet another check</span>
             <span class="mark">&#x2713;</span>
         </div>
+    </div>
+    <div class="checkdetails">
+        <h2>Minimum age > 18 check</h2>
+        <p>Status: QC Failed</p>
+        <p>Result: Minimum age found was 14, which was less than the threshold of 18</p>
+        <p>Datasource: medicare.patients</p>
     </div>
 </body>
 
