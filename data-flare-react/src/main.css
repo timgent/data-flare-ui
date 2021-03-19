@@ -1,7 +1,7 @@
 body {
     display: grid;
     grid-template-rows: auto auto auto;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-template-areas:
         "header header header"
         "qcs qcruns checkresults"
@@ -13,7 +13,7 @@ body {
 @media (min-width: 1000px) {
     body {
         grid-template-rows: auto auto;
-        grid-template-columns: auto auto auto auto;
+        grid-template-columns: 1fr 1fr 1fr 2fr;
         grid-template-areas:
             "header header header header"
             "qcs qcruns checkresults checkdetails";

@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { getLatestQcs } from './qcs/qcs_api'
+import { getLatestQcs, getRunsForQc } from './qcs/qcs_api'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App getLatestQcs={getLatestQcs} />
+    <App getLatestQcs={getLatestQcs} getQcRuns={getRunsForQc} />
   </React.StrictMode>,
   document.getElementById('root')
 );
