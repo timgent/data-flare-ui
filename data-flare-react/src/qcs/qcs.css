@@ -103,8 +103,6 @@
 }
 
 .unselected {
-    font-weight: bold;
-    font-style: italic;
     border-width: 1px;
     padding: 5px;
     border-color: #000000;
