@@ -13,21 +13,23 @@ type QcRunT = {
 }
 
 type SingleDsDescription = {
-    datasource: string
+    datasource: string,
+    type: "SingleDsDescription"
 }
 
 type DualDsDescription = {
     datasourceA: string,
-    datasourceB: string
+    datasourceB: string,
+    type: "DualDsDescription"
 }
 
 type DatasourceDescription = SingleDsDescription | DualDsDescription
 
-type SimpleCheckDescription = { desc: string }
+type SimpleCheckDescription = { desc: string, type: "SimpleCheckDescription" }
 type DualMetricCheckDescription = {
-    desc: string, dsMetric: string, dsToCompareMetric: string, metricComparator: string
+    desc: string, dsMetric: string, dsToCompareMetric: string, metricComparator: string, type: "DualMetricCheckDescription"
 }
-type SingleMetricCheckDescription = { desc: string, dsMetric: string }
+type SingleMetricCheckDescription = { desc: string, dsMetric: string, type: "SingleMetricCheckDescription" }
 type CheckDescriptionT = SimpleCheckDescription | DualMetricCheckDescription | SingleMetricCheckDescription
 
 type QcType = "ArbSingleDsCheck" | "ArbDualDsCheck" | "ArbitraryCheck" | "SingleMetricCheck" | "DualMetricCheck"

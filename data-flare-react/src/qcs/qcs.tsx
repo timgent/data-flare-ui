@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react"
 import React from "react";
-import { CheckDescriptionT, CheckResultT, DatasourceDescription, QcRunT, Status } from "./qcs_model";
+import { CheckDescriptionT, CheckResultT, DatasourceDescription, SingleDsDescription, DualDsDescription, QcRunT, Status } from "./qcs_model";
 
 type QcsProps = {
     latestQcs: QcRunT[],
@@ -201,16 +201,52 @@ function CheckResults(props: {
 
 function CheckDetails(props: { checkResult?: CheckResultT }) {
     const checkResult = props.checkResult
-    
-    if (checkResult === undefined) { return(
-        <div></div>
-    )} else {
-        
+
+    if (checkResult === undefined) {
+        return (
+            <div></div>
+        )
+    } else {
+        let checkDescriptionJsx
+        switch (checkResult.checkDescription.type) {
+            case "SimpleCheckDescription":
+                checkDescriptionJsx = <h2>{checkResult.checkDescription.desc}</h2>
+                break;
+            case "SingleMetricCheckDescription": {
+                const datasourceDescription = (checkResult.datasourceDescription as SingleDsDescription) // Must be SingleDsDescription
+                checkDescriptionJsx = <>
+                    <h2>{checkResult.checkDescription.desc}</h2>
+                    <p>Metric is: {checkResult.checkDescription.dsMetric} for {datasourceDescription.datasource} dataset</p>
+                </>
+                break;
+            }
+            case "DualMetricCheckDescription": {
+                const datasourceDescription = (checkResult.datasourceDescription as DualDsDescription) // Must be DualDsDescription
+                checkDescriptionJsx = <>
+                    <h2>{checkResult.checkDescription.desc}</h2>
+                    <p>Metric is: {checkResult.checkDescription.dsMetric} for {datasourceDescription.datasourceA} dataset</p>
+                    <p>Metric to compare against is: {checkResult.checkDescription.dsToCompareMetric} for {datasourceDescription.datasourceB} dataset</p>
+                    <p>Metrics were compared with: {checkResult.checkDescription.metricComparator}</p>
+                </>
+                break;
+            }
+        }
+        let errorsJsx
+        if (checkResult.errors.length > 0) {
+            const errorsList = checkResult.errors.map(error => <li>{error}</li>)
+            errorsJsx = <>
+                Errors occured while running this check:
+                <ol>
+                    {errorsList}
+                </ol>
+            </>
+        } else { <></> }
         return (
             <div className="checkdetails">
-                <h2>Minimum age greater than 18 check</h2>
+                {checkDescriptionJsx}
                 <p>Status: {checkResult.checkStatus}</p>
                 <p>Result: {checkResult.resultDescription}</p>
+                {errorsJsx}
             </div>
         )
     }
