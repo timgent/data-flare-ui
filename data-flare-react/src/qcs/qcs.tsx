@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react"
 import React from "react";
-import { CheckDescriptionT, CheckResultT, QcRunT, Status } from "./qcs_model";
+import { CheckDescriptionT, CheckResultT, DatasourceDescription, QcRunT, Status } from "./qcs_model";
 
 type QcsProps = {
     latestQcs: QcRunT[],
@@ -11,10 +11,9 @@ type QcsProps = {
 type QcsState = {
     latestQcs: QcRunT[],
     qcRuns: QcRunT[],
-    checkResults: CheckResultT[]
+    checkResults: CheckResultT[],
+    checkResult?: CheckResultT
 }
-
-const selectedCheckSuiteDescription: string = ""
 
 class Qcs extends React.Component<QcsProps, QcsState> {
     constructor(props: QcsProps) {
@@ -27,16 +26,11 @@ class Qcs extends React.Component<QcsProps, QcsState> {
         }
     }
 
-    setStateAndStorage(newState: Pick<QcsState, keyof QcsState>) {
-        localStorage.setItem
-        this.setState(newState)
-    }
-
     render() {
         const onQcClick = (selectedId: number, checkSuiteDescription: string) => {
             const updatedQcs = updateSelectedQc(this.state.latestQcs, selectedId)
             this.setState({
-                latestQcs: updatedQcs, 
+                latestQcs: updatedQcs,
                 qcRuns: this.props.getQcRuns(checkSuiteDescription),
                 checkResults: []
             })
@@ -48,15 +42,34 @@ class Qcs extends React.Component<QcsProps, QcsState> {
                 qcRuns: updatedQcRuns
             })
         }
+        const onCheckResultClick = (checkDescription: CheckDescriptionT, datasourceDescription: DatasourceDescription) => {
+            const updatedCheckResults = updatedSelectedCheckResult(this.state.checkResults, checkDescription, datasourceDescription)
+            this.setState({
+                checkResults: updatedCheckResults,
+                checkResult: updatedCheckResults.find(checkResult => checkResult.isSelected)
+            })
+        }
         return (
             <>
                 <QcTypes latestQcs={this.state.latestQcs} onQcClick={onQcClick} />
                 <QcRuns qcRuns={this.state.qcRuns} onQcRunClick={onQcRunClick} />
-                <CheckResults checkResults={this.state.checkResults} />
-                <CheckDetails />
+                <CheckResults checkResults={this.state.checkResults} onCheckResultClick={onCheckResultClick} />
+                <CheckDetails checkResult={this.state.checkResult} />
             </>
         )
     }
+}
+
+const updatedSelectedCheckResult = (checkResults: CheckResultT[], checkDescription: CheckDescriptionT,
+    datasourceDescription: DatasourceDescription) => {
+    checkResults.forEach(checkResult => {
+        if (checkResult.checkDescription === checkDescription && checkResult.datasourceDescription === datasourceDescription) {
+            checkResult.isSelected = true
+        } else {
+            checkResult.isSelected = false
+        }
+    })
+    return checkResults
 }
 
 const updateSelectedQc = (latestQcs: QcRunT[], selectedId: number) => {
@@ -140,7 +153,10 @@ function QcRuns(props: { qcRuns: QcRunT[], onQcRunClick: (selectedId: number) =>
 //     }
 // }
 
-function CheckResult(props: { checkResult: CheckResultT }) {
+function CheckResult(props: {
+    checkResult: CheckResultT,
+    onClick: (checkDescription: CheckDescriptionT, datasourceDescription: DatasourceDescription) => void
+}) {
     const checkResult = props.checkResult
     // TODO: Factor out the duplication picking class names here
     const selectedClass = checkResult.isSelected ? "selected" : "unselected"
@@ -159,35 +175,45 @@ function CheckResult(props: { checkResult: CheckResultT }) {
         }
         case Status.Warn: {
             statusClass = "warn"
-            checkMark = <span className="mark">&excl;</span>
+            checkMark = <span className="mark">&#33;</span>
             break;
         }
     }
     return (
-        <div className={`checkresult clickable ${selectedClass} ${statusClass}`}>
+        <div className={`checkresult clickable ${selectedClass} ${statusClass}`}
+            onClick={event => props.onClick(checkResult.checkDescription, checkResult.datasourceDescription)}>
             <span className="check">{checkResult.checkDescription.desc} </span>
             {checkMark}
         </div>
     )
 }
 
-function CheckResults(props: { checkResults: CheckResultT[] }) {
+function CheckResults(props: {
+    checkResults: CheckResultT[],
+    onCheckResultClick: (checkDescription: CheckDescriptionT, datasourceDescription: DatasourceDescription) => void
+}) {
     return (
         <div className="checkresults">
-            {props.checkResults.map(checkResult => <CheckResult checkResult={checkResult} />)}
+            {props.checkResults.map(checkResult => <CheckResult checkResult={checkResult} onClick={props.onCheckResultClick} />)}
         </div>
     )
 }
 
-function CheckDetails() {
-    return (
-        <div className="checkdetails">
-            <h2>Minimum age greater than 18 check</h2>
-            <p>Status: QC Failed</p>
-            <p>Result: Minimum age found was 14, which was less than the threshold of 18</p>
-            <p>Datasource: medicare.patients</p>
-        </div>
-    )
+function CheckDetails(props: { checkResult?: CheckResultT }) {
+    const checkResult = props.checkResult
+    
+    if (checkResult === undefined) { return(
+        <div></div>
+    )} else {
+        
+        return (
+            <div className="checkdetails">
+                <h2>Minimum age greater than 18 check</h2>
+                <p>Status: {checkResult.checkStatus}</p>
+                <p>Result: {checkResult.resultDescription}</p>
+            </div>
+        )
+    }
 }
 
 export {
