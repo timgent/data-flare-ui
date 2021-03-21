@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react"
 import React, { useState } from "react";
-import { NumberParam, StringParam, useQueryParam } from "use-query-params";
+import { NumberParam, ObjectParam, StringParam, useQueryParam } from "use-query-params";
 import { CheckDescriptionT, CheckResultT, DatasourceDescription, SingleDsDescription, DualDsDescription, QcRunT, Status } from "./qcs_model";
 
 type QcsProps = {
@@ -19,14 +19,19 @@ type QcsState = {
 const Qcs = (props: QcsProps) => {
     const [paramCheckSuiteDescription, setParamCheckSuiteDescription] = useQueryParam('checkSuiteDescription', StringParam);
     const [paramSelectedQcRunId, setParamSelectedQcRunId] = useQueryParam('qcRunId', NumberParam);
+    const [paramCheckResultId, setParamCheckResultId] = useQueryParam('checkResultId', NumberParam);
+
     const [latestQcs, setLatestQcs] = useState(updateSelectedQc(props.latestQcs, paramCheckSuiteDescription))
     const [qcRuns, setQcRuns] = useState<QcRunT[]>(updateSelectedQcRun(props.getQcRuns(paramCheckSuiteDescription), paramSelectedQcRunId))
-    const [checkResults, setCheckResults] = useState<CheckResultT[]>(props.getCheckResults(paramSelectedQcRunId))
-    const [checkResult, setCheckResult] = useState<CheckResultT>()
+    const [checkResults, setCheckResults] = useState<CheckResultT[]>(updatedSelectedCheckResult(
+        props.getCheckResults(paramSelectedQcRunId), paramCheckResultId))
+    const [checkResult, setCheckResult] = useState<CheckResultT | undefined>(
+        checkResults.find(checkResult => checkResult.isSelected))
 
     const onQcClick = (checkSuiteDescription: string) => {
         setParamCheckSuiteDescription(checkSuiteDescription)
         setParamSelectedQcRunId(undefined)
+        setParamCheckResultId(undefined)
         const updatedQcs = updateSelectedQc(latestQcs, checkSuiteDescription)
         setLatestQcs(updatedQcs)
         setQcRuns(props.getQcRuns(checkSuiteDescription))
@@ -35,13 +40,15 @@ const Qcs = (props: QcsProps) => {
     }
     const onQcRunClick = (selectedId: number) => {
         setParamSelectedQcRunId(selectedId)
+        setParamCheckResultId(undefined)
         const updatedQcRuns = updateSelectedQcRun(qcRuns, selectedId)
         setCheckResults(props.getCheckResults(selectedId))
         setCheckResult(undefined)
         setQcRuns(updatedQcRuns)
     }
-    const onCheckResultClick = (checkDescription: CheckDescriptionT, datasourceDescription: DatasourceDescription) => {
-        const updatedCheckResults = updatedSelectedCheckResult(checkResults, checkDescription, datasourceDescription)
+    const onCheckResultClick = (checkResultId: number) => {
+        setParamCheckResultId(checkResultId)
+        const updatedCheckResults = updatedSelectedCheckResult(checkResults, checkResultId)
         setCheckResults(updatedCheckResults)
         setCheckResult(updatedCheckResults.find(checkResult => checkResult.isSelected))
     }
@@ -56,10 +63,9 @@ const Qcs = (props: QcsProps) => {
     )
 }
 
-const updatedSelectedCheckResult = (checkResults: CheckResultT[], checkDescription: CheckDescriptionT,
-    datasourceDescription: DatasourceDescription) => {
+const updatedSelectedCheckResult = (checkResults: CheckResultT[], selectedCheckResultId: number | null | undefined) => {
     checkResults.forEach(checkResult => {
-        if (checkResult.checkDescription === checkDescription && checkResult.datasourceDescription === datasourceDescription) {
+        if (typeof (checkResult.id) === 'number' && checkResult.id === selectedCheckResultId) {
             checkResult.isSelected = true
         } else {
             checkResult.isSelected = false
@@ -70,7 +76,7 @@ const updatedSelectedCheckResult = (checkResults: CheckResultT[], checkDescripti
 
 const updateSelectedQcRun = (latestQcs: QcRunT[], selectedId: number | null | undefined) => {
     latestQcs.forEach(qc => {
-        if (typeof(qc.id) === 'number' && qc.id === selectedId) {
+        if (typeof (qc.id) === 'number' && qc.id === selectedId) {
             qc.isSelected = true
         } else {
             qc.isSelected = false
@@ -145,24 +151,9 @@ function QcRuns(props: { qcRuns: QcRunT[], onQcRunClick: (selectedId: number) =>
     )
 }
 
-// TODO: Use when doing detailed check result box or remove
-// function CheckDescription(props: { checkDescription: CheckDescriptionT }) {
-//     switch (props.checkDescription.tag) {
-//         case "SimpleCheckDescription":
-//             <{props.checkDescription.desc}/>
-//             break;
-//         case "DualMetricCheckDescription":
-//             ""
-//             break;
-//         case "SingleMetricCheckDescription":
-//             ""
-//             break;
-//     }
-// }
-
 function CheckResult(props: {
     checkResult: CheckResultT,
-    onClick: (checkDescription: CheckDescriptionT, datasourceDescription: DatasourceDescription) => void
+    onClick: (checkResultId: number) => void
 }) {
     const checkResult = props.checkResult
     // TODO: Factor out the duplication picking class names here
@@ -188,7 +179,7 @@ function CheckResult(props: {
     }
     return (
         <div className={`checkresult clickable ${selectedClass} ${statusClass}`}
-            onClick={event => props.onClick(checkResult.checkDescription, checkResult.datasourceDescription)}>
+            onClick={event => props.onClick(checkResult.id)}>
             <span className="check">{checkResult.checkDescription.desc} </span>
             {checkMark}
         </div>
@@ -197,7 +188,7 @@ function CheckResult(props: {
 
 function CheckResults(props: {
     checkResults: CheckResultT[],
-    onCheckResultClick: (checkDescription: CheckDescriptionT, datasourceDescription: DatasourceDescription) => void
+    onCheckResultClick: (checkResultId: number) => void
 }) {
     return (
         <div className="checkresults">

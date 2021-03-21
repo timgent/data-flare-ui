@@ -35,6 +35,7 @@ type CheckDescriptionT = SimpleCheckDescription | DualMetricCheckDescription | S
 type QcType = "ArbSingleDsCheck" | "ArbDualDsCheck" | "ArbitraryCheck" | "SingleMetricCheck" | "DualMetricCheck"
 
 type CheckResultT = {
+    id: number,
     qcType: QcType,
     checkStatus: Status,
     resultDescription: string,

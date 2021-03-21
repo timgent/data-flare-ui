@@ -84,6 +84,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
         case 1:
             checkResults = [
                 {
+                    id: 1,
                     qcType: "SingleMetricCheck",
                     checkStatus: Status.Success,
                     resultDescription: "Max age was <85",
@@ -97,6 +98,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 2,
                     qcType: "ArbSingleDsCheck",
                     checkStatus: Status.Success,
                     resultDescription: "Providers matched expected result",
@@ -106,6 +108,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 3,
                     qcType: "SingleMetricCheck",
                     checkStatus: Status.Success,
                     resultDescription: "All values were distinct",
@@ -119,6 +122,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 4,
                     qcType: "DualMetricCheck",
                     checkStatus: Status.Success,
                     resultDescription: "Metrics were equal",
@@ -138,6 +142,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
         case 11:
             checkResults = [
                 {
+                    id: 1,
                     qcType: "SingleMetricCheck",
                     checkStatus: Status.Success,
                     resultDescription: "Max age was <85",
@@ -151,6 +156,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 2,
                     qcType: "ArbSingleDsCheck",
                     checkStatus: Status.Success,
                     resultDescription: "Providers did not match expected result",
@@ -160,6 +166,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 3,
                     qcType: "SingleMetricCheck",
                     checkStatus: Status.Warn,
                     resultDescription: "All values were distinct",
@@ -177,6 +184,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
         case 111:
             checkResults = [
                 {
+                    id: 1,
                     qcType: "SingleMetricCheck",
                     checkStatus: Status.Error,
                     resultDescription: "Max age was <85",
@@ -190,6 +198,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 2,
                     qcType: "ArbSingleDsCheck",
                     checkStatus: Status.Error,
                     resultDescription: "Providers did not match expected result",
@@ -199,6 +208,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 3,
                     qcType: "SingleMetricCheck",
                     checkStatus: Status.Error,
                     resultDescription: "All values were distinct",
@@ -212,6 +222,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 4,
                     qcType: "DualMetricCheck",
                     checkStatus: Status.Success,
                     resultDescription: "Metrics were equal",
@@ -227,6 +238,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
                     isSelected: false
                 },
                 {
+                    id: 5,
                     qcType: "DualMetricCheck",
                     checkStatus: Status.Error,
                     resultDescription: "An error occured",
@@ -246,6 +258,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
         case 2:
             checkResults = [
                 {
+                    id: 1,
                     qcType: "SingleMetricCheck",
                     checkStatus: Status.Warn,
                     resultDescription: "Max age was 85, which is on the boundary of being acceptable",
@@ -263,6 +276,7 @@ function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
         case 3:
             checkResults = [
                 {
+                    id: 1,
                     qcType: "SingleMetricCheck",
                     checkStatus: Status.Error,
                     resultDescription: "Max age was <85",
