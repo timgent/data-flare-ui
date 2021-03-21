@@ -32,13 +32,15 @@ class Qcs extends React.Component<QcsProps, QcsState> {
             this.setState({
                 latestQcs: updatedQcs,
                 qcRuns: this.props.getQcRuns(checkSuiteDescription),
-                checkResults: []
+                checkResults: [],
+                checkResult: undefined
             })
         }
         const onQcRunClick = (selectedId: number) => {
             const updatedQcRuns = updateSelectedQc(this.state.qcRuns, selectedId)
             this.setState({
                 checkResults: this.props.getCheckResults(selectedId),
+                checkResult: undefined,
                 qcRuns: updatedQcRuns
             })
         }
