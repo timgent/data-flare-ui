@@ -1,5 +1,6 @@
 import { render } from "@testing-library/react"
-import React from "react";
+import React, { useState } from "react";
+import { StringParam, useQueryParam } from "use-query-params";
 import { CheckDescriptionT, CheckResultT, DatasourceDescription, SingleDsDescription, DualDsDescription, QcRunT, Status } from "./qcs_model";
 
 type QcsProps = {
@@ -15,51 +16,39 @@ type QcsState = {
     checkResult?: CheckResultT
 }
 
-class Qcs extends React.Component<QcsProps, QcsState> {
-    constructor(props: QcsProps) {
-        super(props);
-        const latestQcs = props.latestQcs
-        this.state = {
-            latestQcs: latestQcs,
-            qcRuns: [],
-            checkResults: []
-        }
+const Qcs = (props: QcsProps) => {
+    const [latestQcs, setLatestQcs] = useState(props.latestQcs)
+    const [qcRuns, setQcRuns] = useState<QcRunT[]>([])
+    const [checkResults, setCheckResults] = useState<CheckResultT[]>([])
+    const [checkResult, setCheckResult] = useState<CheckResultT>()
+
+    const onQcClick = (checkSuiteDescription: string) => {
+        const updatedQcs = updateSelectedQc(latestQcs, checkSuiteDescription)
+        setLatestQcs(updatedQcs)
+        setQcRuns(props.getQcRuns(checkSuiteDescription))
+        setCheckResults([])
+        setCheckResult(undefined)
+    }
+    const onQcRunClick = (selectedId: number) => {
+        const updatedQcRuns = updateSelectedQcRun(qcRuns, selectedId)
+        setCheckResults(props.getCheckResults(selectedId))
+        setCheckResult(undefined)
+        setQcRuns(updatedQcRuns)
+    }
+    const onCheckResultClick = (checkDescription: CheckDescriptionT, datasourceDescription: DatasourceDescription) => {
+        const updatedCheckResults = updatedSelectedCheckResult(checkResults, checkDescription, datasourceDescription)
+        setCheckResults(updatedCheckResults)
+        setCheckResult(updatedCheckResults.find(checkResult => checkResult.isSelected))
     }
 
-    render() {
-        const onQcClick = (selectedId: number, checkSuiteDescription: string) => {
-            const updatedQcs = updateSelectedQc(this.state.latestQcs, selectedId)
-            this.setState({
-                latestQcs: updatedQcs,
-                qcRuns: this.props.getQcRuns(checkSuiteDescription),
-                checkResults: [],
-                checkResult: undefined
-            })
-        }
-        const onQcRunClick = (selectedId: number) => {
-            const updatedQcRuns = updateSelectedQc(this.state.qcRuns, selectedId)
-            this.setState({
-                checkResults: this.props.getCheckResults(selectedId),
-                checkResult: undefined,
-                qcRuns: updatedQcRuns
-            })
-        }
-        const onCheckResultClick = (checkDescription: CheckDescriptionT, datasourceDescription: DatasourceDescription) => {
-            const updatedCheckResults = updatedSelectedCheckResult(this.state.checkResults, checkDescription, datasourceDescription)
-            this.setState({
-                checkResults: updatedCheckResults,
-                checkResult: updatedCheckResults.find(checkResult => checkResult.isSelected)
-            })
-        }
-        return (
-            <>
-                <QcTypes latestQcs={this.state.latestQcs} onQcClick={onQcClick} />
-                <QcRuns qcRuns={this.state.qcRuns} onQcRunClick={onQcRunClick} />
-                <CheckResults checkResults={this.state.checkResults} onCheckResultClick={onCheckResultClick} />
-                <CheckDetails checkResult={this.state.checkResult} />
-            </>
-        )
-    }
+    return (
+        <>
+            <QcTypes latestQcs={latestQcs} onQcClick={onQcClick} />
+            <QcRuns qcRuns={qcRuns} onQcRunClick={onQcRunClick} />
+            <CheckResults checkResults={checkResults} onCheckResultClick={onCheckResultClick} />
+            <CheckDetails checkResult={checkResult} />
+        </>
+    )
 }
 
 const updatedSelectedCheckResult = (checkResults: CheckResultT[], checkDescription: CheckDescriptionT,
@@ -74,7 +63,7 @@ const updatedSelectedCheckResult = (checkResults: CheckResultT[], checkDescripti
     return checkResults
 }
 
-const updateSelectedQc = (latestQcs: QcRunT[], selectedId: number) => {
+const updateSelectedQcRun = (latestQcs: QcRunT[], selectedId: number) => {
     latestQcs.forEach(qc => {
         if (qc.id === selectedId) {
             qc.isSelected = true
@@ -85,7 +74,18 @@ const updateSelectedQc = (latestQcs: QcRunT[], selectedId: number) => {
     return latestQcs
 }
 
-function Qc(props: { qc: QcRunT, onClick: (id: number, checkSuiteDescription: string) => void }) {
+const updateSelectedQc = (latestQcs: QcRunT[], checkSuiteDescription: string) => {
+    latestQcs.forEach(qc => {
+        if (qc.checkSuiteDescription === checkSuiteDescription) {
+            qc.isSelected = true
+        } else {
+            qc.isSelected = false
+        }
+    })
+    return latestQcs
+}
+
+function Qc(props: { qc: QcRunT, onClick: (checkSuiteDescription: string) => void }) {
     const qc = props.qc
     const selectedClass = qc.isSelected ? "selected" : "unselected"
     let statusClass: string
@@ -95,7 +95,7 @@ function Qc(props: { qc: QcRunT, onClick: (id: number, checkSuiteDescription: st
         case Status.Warn: { statusClass = "warn"; break; }
     }
     return (
-        <div className={`qc ${statusClass} ${selectedClass}`} onClick={event => props.onClick(qc.id, qc.checkSuiteDescription)}>
+        <div className={`qc ${statusClass} ${selectedClass}`} onClick={event => props.onClick(qc.checkSuiteDescription)}>
             <span className="status">{qc.overallStatus}</span>
             <span className="date">{qc.timestamp.toLocaleDateString()}</span>
             <span className="qctype clickable">{qc.checkSuiteDescription}</span>
@@ -106,7 +106,7 @@ function Qc(props: { qc: QcRunT, onClick: (id: number, checkSuiteDescription: st
     )
 }
 
-function QcTypes(props: { latestQcs: QcRunT[], onQcClick: (id: number, checkSuiteDescription: string) => void }) {
+function QcTypes(props: { latestQcs: QcRunT[], onQcClick: (checkSuiteDescription: string) => void }) {
     return (
         <div className="qcs">
             {props.latestQcs.map(qc => <Qc qc={qc} onClick={props.onQcClick} />)}
