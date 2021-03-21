@@ -1,12 +1,12 @@
 import { render } from "@testing-library/react"
 import React, { useState } from "react";
-import { StringParam, useQueryParam } from "use-query-params";
+import { NumberParam, StringParam, useQueryParam } from "use-query-params";
 import { CheckDescriptionT, CheckResultT, DatasourceDescription, SingleDsDescription, DualDsDescription, QcRunT, Status } from "./qcs_model";
 
 type QcsProps = {
     latestQcs: QcRunT[],
-    getQcRuns: (checkSuiteDescription: string) => QcRunT[],
-    getCheckResults: (qcId: number) => CheckResultT[]
+    getQcRuns: (checkSuiteDescription: string | undefined | null) => QcRunT[],
+    getCheckResults: (qcId: number | null | undefined) => CheckResultT[]
 }
 
 type QcsState = {
@@ -17,12 +17,16 @@ type QcsState = {
 }
 
 const Qcs = (props: QcsProps) => {
-    const [latestQcs, setLatestQcs] = useState(props.latestQcs)
-    const [qcRuns, setQcRuns] = useState<QcRunT[]>([])
-    const [checkResults, setCheckResults] = useState<CheckResultT[]>([])
+    const [paramCheckSuiteDescription, setParamCheckSuiteDescription] = useQueryParam('checkSuiteDescription', StringParam);
+    const [paramSelectedQcRunId, setParamSelectedQcRunId] = useQueryParam('qcRunId', NumberParam);
+    const [latestQcs, setLatestQcs] = useState(updateSelectedQc(props.latestQcs, paramCheckSuiteDescription))
+    const [qcRuns, setQcRuns] = useState<QcRunT[]>(updateSelectedQcRun(props.getQcRuns(paramCheckSuiteDescription), paramSelectedQcRunId))
+    const [checkResults, setCheckResults] = useState<CheckResultT[]>(props.getCheckResults(paramSelectedQcRunId))
     const [checkResult, setCheckResult] = useState<CheckResultT>()
 
     const onQcClick = (checkSuiteDescription: string) => {
+        setParamCheckSuiteDescription(checkSuiteDescription)
+        setParamSelectedQcRunId(undefined)
         const updatedQcs = updateSelectedQc(latestQcs, checkSuiteDescription)
         setLatestQcs(updatedQcs)
         setQcRuns(props.getQcRuns(checkSuiteDescription))
@@ -30,6 +34,7 @@ const Qcs = (props: QcsProps) => {
         setCheckResult(undefined)
     }
     const onQcRunClick = (selectedId: number) => {
+        setParamSelectedQcRunId(selectedId)
         const updatedQcRuns = updateSelectedQcRun(qcRuns, selectedId)
         setCheckResults(props.getCheckResults(selectedId))
         setCheckResult(undefined)
@@ -63,9 +68,9 @@ const updatedSelectedCheckResult = (checkResults: CheckResultT[], checkDescripti
     return checkResults
 }
 
-const updateSelectedQcRun = (latestQcs: QcRunT[], selectedId: number) => {
+const updateSelectedQcRun = (latestQcs: QcRunT[], selectedId: number | null | undefined) => {
     latestQcs.forEach(qc => {
-        if (qc.id === selectedId) {
+        if (typeof(qc.id) === 'number' && qc.id === selectedId) {
             qc.isSelected = true
         } else {
             qc.isSelected = false
@@ -74,7 +79,7 @@ const updateSelectedQcRun = (latestQcs: QcRunT[], selectedId: number) => {
     return latestQcs
 }
 
-const updateSelectedQc = (latestQcs: QcRunT[], checkSuiteDescription: string) => {
+const updateSelectedQc = (latestQcs: QcRunT[], checkSuiteDescription: string | null | undefined) => {
     latestQcs.forEach(qc => {
         if (qc.checkSuiteDescription === checkSuiteDescription) {
             qc.isSelected = true

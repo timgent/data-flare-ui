@@ -27,7 +27,7 @@ function getLatestQcs(): QcRunT[] {
     ];
 }
 
-function getRunsForQc(checkSuiteDescription: string): QcRunT[] {
+function getRunsForQc(checkSuiteDescription: string | null | undefined): QcRunT[] {
     let qcRuns: QcRunT[] = []
     switch (checkSuiteDescription) {
         case "Provider QCs": qcRuns = [
@@ -72,11 +72,13 @@ function getRunsForQc(checkSuiteDescription: string): QcRunT[] {
                 id: 3
             }]
             break;
+        default:
+            qcRuns = []
     }
     return qcRuns;
 }
 
-function getCheckResults(qcId: number): CheckResultT[] {
+function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
     let checkResults: CheckResultT[]
     switch (qcId) {
         case 1:

@@ -25,8 +25,8 @@ function DataFlareHeader() {
 
 function App(props: {
   getLatestQcs: () => QcRunT[],
-  getQcRuns: (checkSuiteDescription: string) => QcRunT[],
-  getCheckResults: (qcId: number) => CheckResultT[]
+  getQcRuns: (checkSuiteDescription: string | null | undefined) => QcRunT[],
+  getCheckResults: (qcId: number | null | undefined) => CheckResultT[]
 }) {
   return (
     <Router>
