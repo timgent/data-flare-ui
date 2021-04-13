@@ -4,6 +4,7 @@ This repo is a starting point for a user interface for [data-flare](https://gith
 
 # Running the project
 ```bash
+cd data-flare-react
 npm install
 npm start
 ```
