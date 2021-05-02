@@ -1,36 +1,23 @@
-import { CheckResultT, QcRunT as QcRunT, Status } from "./qcs_model"
+import {CheckResultT, QcRunT as QcRunT, Status} from "./qcs_model"
+import axios from "axios";
 
-// TODO: Implement with real API
-function getLatestQcs(): QcRunT[] {
-    return [
-        {
-            checkSuiteDescription: "Provider QCs",
-            overallStatus: Status.Success,
-            timestamp: new Date("2021-03-05"),
-            isSelected: false,
-            id: 1
-        },
-        {
-            checkSuiteDescription: "Patient QCs",
-            overallStatus: Status.Error,
-            timestamp: new Date("2021-03-01"),
-            isSelected: false,
-            id: 2
-        },
-        {
-            checkSuiteDescription: "Disease QC",
-            overallStatus: Status.Warn,
-            timestamp: new Date("2021-02-20"),
-            isSelected: false,
-            id: 3
-        },
-    ];
+function getLatestQcs(): Promise<QcRunT[]> {
+    // TODO: Don't hardcode the API URL!
+    return axios.get("http://localhost:8080/qcresults/latest").then(promise => {
+            return promise.data.map((r: QcRunT) => {
+                    r.timestamp = new Date(r.timestamp)
+                    return r
+                }
+            )
+        }
+    )
 }
 
+// TODO: Implement with real API
 function getRunsForQc(checkSuiteDescription: string | null | undefined): QcRunT[] {
     let qcRuns: QcRunT[] = []
     switch (checkSuiteDescription) {
-        case "Provider QCs": qcRuns = [
+        case "checkSuiteA": qcRuns = [
             {
                 checkSuiteDescription: "Provider QCs",
                 overallStatus: Status.Success,
@@ -54,7 +41,7 @@ function getRunsForQc(checkSuiteDescription: string | null | undefined): QcRunT[
             }
         ]
             break;
-        case "Patient QCs":
+        case "checkSuiteB":
             qcRuns = [{
                 checkSuiteDescription: "Patient QCs",
                 overallStatus: Status.Error,

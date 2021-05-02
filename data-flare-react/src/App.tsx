@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { isPropertySignature } from 'typescript';
 import logo from './logo.svg';
 import './main.css';
@@ -24,7 +24,7 @@ function DataFlareHeader() {
 {/* <Qcs latestQcs={props.getLatestQcs()} getQcRuns={props.getQcRuns} getCheckResults={props.getCheckResults} /> */ }
 
 function App(props: {
-  getLatestQcs: () => QcRunT[],
+  getLatestQcs: () => Promise<QcRunT[]>,
   getQcRuns: (checkSuiteDescription: string | null | undefined) => QcRunT[],
   getCheckResults: (qcId: number | null | undefined) => CheckResultT[]
 }) {
