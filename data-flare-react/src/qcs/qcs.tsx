@@ -4,15 +4,8 @@ import {CheckResultT, DualDsDescription, QcRunT, SingleDsDescription, Status} fr
 
 type QcsProps = {
     latestQcs: Promise<QcRunT[]>,
-    getQcRuns: (checkSuiteDescription: string | undefined | null) => QcRunT[],
+    getQcRuns: (checkSuiteDescription: string | undefined | null) => Promise<QcRunT[]>,
     getCheckResults: (qcId: number | null | undefined) => CheckResultT[]
-}
-
-type QcsState = {
-    latestQcs: QcRunT[],
-    qcRuns: QcRunT[],
-    checkResults: CheckResultT[],
-    checkResult?: CheckResultT
 }
 
 const Qcs = (props: QcsProps) => {
@@ -24,7 +17,7 @@ const Qcs = (props: QcsProps) => {
     // State management
     const [checkSuiteDescription, setCheckSuiteDescription] = useState(paramCheckSuiteDescription)
     const [latestQcs, setLatestQcs] = useState<QcRunT[]>([])
-    const [qcRuns, setQcRuns] = useState<QcRunT[]>(updateSelectedQcRun(props.getQcRuns(paramCheckSuiteDescription), paramSelectedQcRunId))
+    const [qcRuns, setQcRuns] = useState<QcRunT[]>([])
     const [checkResults, setCheckResults] = useState<CheckResultT[]>(updatedSelectedCheckResult(
         props.getCheckResults(paramSelectedQcRunId), paramCheckResultId))
     const [checkResult, setCheckResult] = useState<CheckResultT | undefined>(
@@ -32,15 +25,11 @@ const Qcs = (props: QcsProps) => {
 
     // On click handlers
     const onQcClick = (checkSuiteDescription: string) => {
-        setCheckSuiteDescription(checkSuiteDescription)
         setParamCheckSuiteDescription(checkSuiteDescription)
-        setParamSelectedQcRunId(undefined)
-        setParamCheckResultId(undefined)
-        const updatedQcs = updateSelectedQc(latestQcs, checkSuiteDescription)
-        setLatestQcs(updatedQcs)
-        setQcRuns(props.getQcRuns(checkSuiteDescription))
         setCheckResults([])
         setCheckResult(undefined)
+        setParamSelectedQcRunId(undefined)
+        setParamCheckResultId(undefined)
     }
     const onQcRunClick = (selectedId: number) => {
         setParamSelectedQcRunId(selectedId)
@@ -57,10 +46,19 @@ const Qcs = (props: QcsProps) => {
         setCheckResult(updatedCheckResults.find(checkResult => checkResult.isSelected))
     }
 
+    // Update latestQcs on page load, once API call completes
     useEffect(() => {
             props.latestQcs.then(qcs => setLatestQcs(updateSelectedQc(qcs, checkSuiteDescription)))
-        }
+        }, []
     )
+
+    // Update qcRuns when selected latestQc is changed (paramCheckSuiteDescription)
+    useEffect(() => {
+        props.getQcRuns(paramCheckSuiteDescription).then(qcRuns => setQcRuns(updateSelectedQcRun(qcRuns, paramSelectedQcRunId)))
+        setCheckSuiteDescription(paramCheckSuiteDescription)
+        const updatedQcs = updateSelectedQc(latestQcs, paramCheckSuiteDescription)
+        setLatestQcs(updatedQcs)
+    }, [paramCheckSuiteDescription])
 
     return (
         <>

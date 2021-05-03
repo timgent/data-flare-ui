@@ -14,55 +14,57 @@ function getLatestQcs(): Promise<QcRunT[]> {
 }
 
 // TODO: Implement with real API
-function getRunsForQc(checkSuiteDescription: string | null | undefined): QcRunT[] {
-    let qcRuns: QcRunT[] = []
-    switch (checkSuiteDescription) {
-        case "checkSuiteA": qcRuns = [
-            {
-                checkSuiteDescription: "Provider QCs",
-                overallStatus: Status.Success,
-                timestamp: new Date("2021-03-05"),
-                isSelected: false,
-                id: 1
-            },
-            {
-                checkSuiteDescription: "Provider QCs",
-                overallStatus: Status.Warn,
-                timestamp: new Date("2021-02-05"),
-                isSelected: false,
-                id: 11
-            },
-            {
-                checkSuiteDescription: "Provider QCs",
-                overallStatus: Status.Error,
-                timestamp: new Date("2021-01-05"),
-                isSelected: false,
-                id: 111
-            }
-        ]
-            break;
-        case "checkSuiteB":
-            qcRuns = [{
-                checkSuiteDescription: "Patient QCs",
-                overallStatus: Status.Error,
-                timestamp: new Date("2021-03-01"),
-                isSelected: false,
-                id: 2
-            }]
-            break;
-        case "Disease QC":
-            qcRuns = [{
-                checkSuiteDescription: "Disease QC",
-                overallStatus: Status.Warn,
-                timestamp: new Date("2021-02-20"),
-                isSelected: false,
-                id: 3
-            }]
-            break;
-        default:
-            qcRuns = []
-    }
-    return qcRuns;
+function getRunsForQc(checkSuiteDescription: string | null | undefined): Promise<QcRunT[]> {
+    return new Promise<QcRunT[]>((resolve, reject) => {
+        let qcRuns: QcRunT[] = []
+        switch (checkSuiteDescription) {
+            case "checkSuiteA": qcRuns = [
+                {
+                    checkSuiteDescription: "Provider QCs",
+                    overallStatus: Status.Success,
+                    timestamp: new Date("2021-03-05"),
+                    isSelected: false,
+                    id: 1
+                },
+                {
+                    checkSuiteDescription: "Provider QCs",
+                    overallStatus: Status.Warn,
+                    timestamp: new Date("2021-02-05"),
+                    isSelected: false,
+                    id: 11
+                },
+                {
+                    checkSuiteDescription: "Provider QCs",
+                    overallStatus: Status.Error,
+                    timestamp: new Date("2021-01-05"),
+                    isSelected: false,
+                    id: 111
+                }
+            ]
+                break;
+            case "checkSuiteB":
+                qcRuns = [{
+                    checkSuiteDescription: "Patient QCs",
+                    overallStatus: Status.Error,
+                    timestamp: new Date("2021-03-01"),
+                    isSelected: false,
+                    id: 2
+                }]
+                break;
+            case "Disease QC":
+                qcRuns = [{
+                    checkSuiteDescription: "Disease QC",
+                    overallStatus: Status.Warn,
+                    timestamp: new Date("2021-02-20"),
+                    isSelected: false,
+                    id: 3
+                }]
+                break;
+            default:
+                qcRuns = []
+        }
+        resolve(qcRuns)
+    })
 }
 
 function getCheckResults(qcId: number | null | undefined): CheckResultT[] {
