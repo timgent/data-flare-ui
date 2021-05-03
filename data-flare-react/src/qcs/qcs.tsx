@@ -5,60 +5,56 @@ import {CheckResultT, DualDsDescription, QcRunT, SingleDsDescription, Status} fr
 type QcsProps = {
     latestQcs: Promise<QcRunT[]>,
     getQcRuns: (checkSuiteDescription: string | undefined | null) => Promise<QcRunT[]>,
-    getCheckResults: (qcId: number | null | undefined) => CheckResultT[]
+    getCheckResults: (qcId: number | null | undefined) => Promise<CheckResultT[]>
 }
 
 const Qcs = (props: QcsProps) => {
+    props.latestQcs.then(qcs => setLatestQcs(updateSelectedQc(qcs, paramCheckSuiteDescription)))
+
     // Query params
     const [paramCheckSuiteDescription, setParamCheckSuiteDescription] = useQueryParam('checkSuiteDescription', StringParam);
     const [paramSelectedQcRunId, setParamSelectedQcRunId] = useQueryParam('qcRunId', NumberParam);
     const [paramCheckResultId, setParamCheckResultId] = useQueryParam('checkResultId', NumberParam);
 
     // State management
-    const [checkSuiteDescription, setCheckSuiteDescription] = useState(paramCheckSuiteDescription)
     const [latestQcs, setLatestQcs] = useState<QcRunT[]>([])
     const [qcRuns, setQcRuns] = useState<QcRunT[]>([])
-    const [checkResults, setCheckResults] = useState<CheckResultT[]>(updatedSelectedCheckResult(
-        props.getCheckResults(paramSelectedQcRunId), paramCheckResultId))
-    const [checkResult, setCheckResult] = useState<CheckResultT | undefined>(
-        checkResults.find(checkResult => checkResult.isSelected))
+    const [checkResults, setCheckResults] = useState<CheckResultT[]>([])
+    const [checkResult, setCheckResult] = useState<CheckResultT | undefined>(undefined)
 
     // On click handlers
     const onQcClick = (checkSuiteDescription: string) => {
         setParamCheckSuiteDescription(checkSuiteDescription)
-        setCheckResults([])
-        setCheckResult(undefined)
         setParamSelectedQcRunId(undefined)
         setParamCheckResultId(undefined)
     }
     const onQcRunClick = (selectedId: number) => {
         setParamSelectedQcRunId(selectedId)
         setParamCheckResultId(undefined)
-        const updatedQcRuns = updateSelectedQcRun(qcRuns, selectedId)
-        setCheckResults(props.getCheckResults(selectedId))
-        setCheckResult(undefined)
-        setQcRuns(updatedQcRuns)
     }
     const onCheckResultClick = (checkResultId: number) => {
         setParamCheckResultId(checkResultId)
-        const updatedCheckResults = updatedSelectedCheckResult(checkResults, checkResultId)
-        setCheckResults(updatedCheckResults)
-        setCheckResult(updatedCheckResults.find(checkResult => checkResult.isSelected))
     }
-
-    // Update latestQcs on page load, once API call completes
-    useEffect(() => {
-            props.latestQcs.then(qcs => setLatestQcs(updateSelectedQc(qcs, checkSuiteDescription)))
-        }, []
-    )
-
     // Update qcRuns when selected latestQc is changed (paramCheckSuiteDescription)
     useEffect(() => {
         props.getQcRuns(paramCheckSuiteDescription).then(qcRuns => setQcRuns(updateSelectedQcRun(qcRuns, paramSelectedQcRunId)))
-        setCheckSuiteDescription(paramCheckSuiteDescription)
-        const updatedQcs = updateSelectedQc(latestQcs, paramCheckSuiteDescription)
-        setLatestQcs(updatedQcs)
+        setLatestQcs(updateSelectedQc(latestQcs, paramCheckSuiteDescription))
     }, [paramCheckSuiteDescription])
+
+    // Update qcResults when selected qcRun is changed (paramSelectedQcRunId)
+    useEffect(() => {
+        const checkResultsPromise = props.getCheckResults(paramSelectedQcRunId)
+        checkResultsPromise.then(checkResults => setCheckResults(updatedSelectedCheckResult(checkResults, paramCheckResultId)))
+        checkResultsPromise.then(checkResults => setCheckResult(checkResults.find(checkResult => checkResult.isSelected)))
+        setQcRuns(updateSelectedQcRun(qcRuns, paramSelectedQcRunId))
+    }, [paramSelectedQcRunId])
+
+    // Update when selected check result is updated (paramCheckResultId)
+    useEffect(() => {
+        const updatedCheckResults = updatedSelectedCheckResult(checkResults, paramCheckResultId)
+        setCheckResults(updatedCheckResults)
+        setCheckResult(updatedCheckResults.find(checkResult => checkResult.isSelected))
+    }, [paramCheckResultId])
 
     return (
         <>
