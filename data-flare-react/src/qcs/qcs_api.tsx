@@ -1,9 +1,9 @@
 import {CheckResultT, QcRunT as QcRunT, Status} from "./qcs_model"
 import axios from "axios";
+import {api_url} from "../conf";
 
 function getLatestQcs(): Promise<QcRunT[]> {
-    // TODO: Don't hardcode the API URL!
-    return axios.get("http://localhost:8080/qcresults/latest").then(promise => {
+    return axios.get(api_url + "/qcresults/latest").then(promise => {
             return promise.data.map((r: QcRunT) => {
                     r.timestamp = new Date(r.timestamp)
                     return r
