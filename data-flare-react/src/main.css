@@ -1,0 +1,42 @@
+body {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas:
+        "header header header"
+        "qcs qcruns checkresults"
+        "checkdetails checkdetails checkdetails";
+    font-family: sans-serif;
+    background-color: #E4DFDA;
+}
+
+@media (min-width: 1000px) {
+    body {
+        grid-template-rows: auto auto;
+        grid-template-columns: 1fr 1fr 1fr 2fr;
+        grid-template-areas:
+            "header header header header"
+            "qcs qcruns checkresults checkdetails";
+    }
+}
+
+header {
+    grid-area: header;
+    text-align: center;
+    background-color: #000000;
+    margin: 5px 5px 20px 5px;
+}
+
+.icon {
+    height: 80px;
+    display: inline;
+    vertical-align: middle;
+}
+
+.page-title {
+    display: inline;
+    vertical-align: middle;
+    background: -webkit-linear-gradient(right, #E57E07, #C219B7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
