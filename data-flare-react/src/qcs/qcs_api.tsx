@@ -25,7 +25,7 @@ function getRunsForQc(checkSuiteDescription: string | null | undefined): Promise
 )}
 
 function getCheckResults(qcId: string | null | undefined): Promise<CheckResultT[]> {
-    return axios.get(api_url + "/qcresult/" + qcId).then(promise => {
+    return axios.get(api_url + "/qcresults/" + qcId).then(promise => {
         const checkResults: CheckResultT[] = promise.data.checkResults
         for(let i=0; i < checkResults.length; i++){
             checkResults[i].id = i
