@@ -239,7 +239,7 @@ function CheckDetails(props: { checkResult?: CheckResultT }) {
                 checkDescriptionJsx = <>
                     <h2>{checkResult.checkDescription.desc}</h2>
                     <p>Metric
-                        is: {checkResult.checkDescription.dsMetric} for {datasourceDescription.datasource} dataset</p>
+                        is: {checkResult.checkDescription.dsMetric.metricName} for {datasourceDescription.datasource} dataset</p>
                 </>
                 break;
             }
@@ -248,9 +248,9 @@ function CheckDetails(props: { checkResult?: CheckResultT }) {
                 checkDescriptionJsx = <>
                     <h2>{checkResult.checkDescription.desc}</h2>
                     <p>Metric
-                        is: {checkResult.checkDescription.dsMetric} for {datasourceDescription.datasourceA} dataset</p>
+                        is: {checkResult.checkDescription.dsMetric.metricName} for {datasourceDescription.datasourceA} dataset</p>
                     <p>Metric to compare against
-                        is: {checkResult.checkDescription.dsToCompareMetric} for {datasourceDescription.datasourceB} dataset</p>
+                        is: {checkResult.checkDescription.dsToCompareMetric.metricName} for {datasourceDescription.datasourceB} dataset</p>
                     <p>Metrics were compared with: {checkResult.checkDescription.metricComparator}</p>
                 </>
                 break;

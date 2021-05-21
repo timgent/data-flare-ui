@@ -34,11 +34,18 @@ type DualDsDescription = {
 
 type DatasourceDescription = SingleDsDescription | DualDsDescription
 
+type MetricDescT = {
+    metricName: string
+    filterDescription: string | undefined
+    complianceDescription: string | undefined
+    onColumns: string | undefined
+    onColumn: string | undefined
+}
 type SimpleCheckDescription = { desc: string, type: "SimpleCheckDescription" }
 type DualMetricCheckDescription = {
-    desc: string, dsMetric: string, dsToCompareMetric: string, metricComparator: string, type: "DualMetricCheckDescription"
+    desc: string, dsMetric: MetricDescT, dsToCompareMetric: MetricDescT, metricComparator: string, type: "DualMetricCheckDescription"
 }
-type SingleMetricCheckDescription = { desc: string, dsMetric: string, type: "SingleMetricCheckDescription" }
+type SingleMetricCheckDescription = { desc: string, dsMetric: MetricDescT, type: "SingleMetricCheckDescription" }
 type CheckDescriptionT = SimpleCheckDescription | DualMetricCheckDescription | SingleMetricCheckDescription
 
 type QcType = "ArbSingleDsCheck" | "ArbDualDsCheck" | "ArbitraryCheck" | "SingleMetricCheck" | "DualMetricCheck"
