@@ -4,12 +4,21 @@ enum Status {
     Success = "Success"
 }
 
+type CheckSuiteResultT = {
+    checkSuiteDescription: string,
+    checkResults: CheckResultT[],
+    overallStatus: Status,
+    timestamp: Date,
+    isSelected: boolean,
+    id: string
+}
+
 type QcRunT = {
     checkSuiteDescription: string,
     overallStatus: Status,
     timestamp: Date,
     isSelected: boolean,
-    id: number
+    id: string
 }
 
 type SingleDsDescription = {
@@ -37,7 +46,7 @@ type QcType = "ArbSingleDsCheck" | "ArbDualDsCheck" | "ArbitraryCheck" | "Single
 type CheckResultT = {
     id: number,
     qcType: QcType,
-    checkStatus: Status,
+    status: Status,
     resultDescription: string,
     checkDescription: CheckDescriptionT,
     datasourceDescription: DatasourceDescription,
@@ -48,5 +57,5 @@ type CheckResultT = {
 export { Status }
 export type {
     QcRunT, CheckResultT, QcType, CheckDescriptionT, SingleMetricCheckDescription, DualMetricCheckDescription,
-    SimpleCheckDescription, DatasourceDescription, DualDsDescription, SingleDsDescription
+    SimpleCheckDescription, DatasourceDescription, DualDsDescription, SingleDsDescription, CheckSuiteResultT
 }

@@ -5,7 +5,7 @@ import {CheckResultT, DualDsDescription, QcRunT, SingleDsDescription, Status} fr
 type QcsProps = {
     latestQcs: Promise<QcRunT[]>,
     getQcRuns: (checkSuiteDescription: string | undefined | null) => Promise<QcRunT[]>,
-    getCheckResults: (qcId: number | null | undefined) => Promise<CheckResultT[]>
+    getCheckResults: (qcId: string | null | undefined) => Promise<CheckResultT[]>
 }
 
 const Qcs = (props: QcsProps) => {
@@ -13,7 +13,7 @@ const Qcs = (props: QcsProps) => {
 
     // Query params
     const [paramCheckSuiteDescription, setParamCheckSuiteDescription] = useQueryParam('checkSuiteDescription', StringParam);
-    const [paramSelectedQcRunId, setParamSelectedQcRunId] = useQueryParam('qcRunId', NumberParam);
+    const [paramSelectedQcRunId, setParamSelectedQcRunId] = useQueryParam('qcRunId', StringParam);
     const [paramCheckResultId, setParamCheckResultId] = useQueryParam('checkResultId', NumberParam);
 
     // State management
@@ -28,7 +28,7 @@ const Qcs = (props: QcsProps) => {
         setParamSelectedQcRunId(undefined)
         setParamCheckResultId(undefined)
     }
-    const onQcRunClick = (selectedId: number) => {
+    const onQcRunClick = (selectedId: string) => {
         setParamSelectedQcRunId(selectedId)
         setParamCheckResultId(undefined)
     }
@@ -43,9 +43,11 @@ const Qcs = (props: QcsProps) => {
 
     // Update qcResults when selected qcRun is changed (paramSelectedQcRunId)
     useEffect(() => {
-        const checkResultsPromise = props.getCheckResults(paramSelectedQcRunId)
-        checkResultsPromise.then(checkResults => setCheckResults(updatedSelectedCheckResult(checkResults, paramCheckResultId)))
-        checkResultsPromise.then(checkResults => setCheckResult(checkResults.find(checkResult => checkResult.isSelected)))
+        if (paramSelectedQcRunId != undefined) {
+            const checkResultsPromise = props.getCheckResults(paramSelectedQcRunId)
+            checkResultsPromise.then(checkResults => setCheckResults(updatedSelectedCheckResult(checkResults, paramCheckResultId)))
+            checkResultsPromise.then(checkResults => setCheckResult(checkResults.find(checkResult => checkResult.isSelected)))
+        }
         setQcRuns(updateSelectedQcRun(qcRuns, paramSelectedQcRunId))
     }, [paramSelectedQcRunId])
 
@@ -77,9 +79,9 @@ const updatedSelectedCheckResult = (checkResults: CheckResultT[], selectedCheckR
     return checkResults
 }
 
-const updateSelectedQcRun = (latestQcs: QcRunT[], selectedId: number | null | undefined) => {
+const updateSelectedQcRun = (latestQcs: QcRunT[], selectedId: string | null | undefined) => {
     latestQcs.forEach(qc => {
-        if (typeof (qc.id) === 'number' && qc.id === selectedId) {
+        if (typeof (qc.id) === 'string' && qc.id === selectedId) {
             qc.isSelected = true
         } else {
             qc.isSelected = false
@@ -137,7 +139,7 @@ function QcTypes(props: { latestQcs: QcRunT[], onQcClick: (checkSuiteDescription
     )
 }
 
-function QcRun(props: { qcRun: QcRunT, onClick: (selectedId: number) => void }) {
+function QcRun(props: { qcRun: QcRunT, onClick: (selectedId: string) => void }) {
     // TODO: Factor out the duplication picking class names here
     const qcRun = props.qcRun
     const selectedClass = qcRun.isSelected ? "selected" : "unselected"
@@ -164,7 +166,7 @@ function QcRun(props: { qcRun: QcRunT, onClick: (selectedId: number) => void }) 
     )
 }
 
-function QcRuns(props: { qcRuns: QcRunT[], onQcRunClick: (selectedId: number) => void }) {
+function QcRuns(props: { qcRuns: QcRunT[], onQcRunClick: (selectedId: string) => void }) {
     return (
         <div className="qcruns">
             {props.qcRuns.map(qcRun => <QcRun qcRun={qcRun} onClick={props.onQcRunClick}/>)}
@@ -181,7 +183,7 @@ function CheckResult(props: {
     const selectedClass = checkResult.isSelected ? "selected" : "unselected"
     let statusClass: string
     let checkMark
-    switch (checkResult.checkStatus) {
+    switch (checkResult.status) {
         case Status.Success: {
             statusClass = "success"
             checkMark = <span className="mark">&#x2713;</span>
@@ -269,7 +271,7 @@ function CheckDetails(props: { checkResult?: CheckResultT }) {
         return (
             <div className="checkdetails">
                 {checkDescriptionJsx}
-                <p>Status: {checkResult.checkStatus}</p>
+                <p>Status: {checkResult.status}</p>
                 <p>Result: {checkResult.resultDescription}</p>
                 {errorsJsx}
             </div>
