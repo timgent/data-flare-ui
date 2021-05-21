@@ -47,6 +47,8 @@ const Qcs = (props: QcsProps) => {
             const checkResultsPromise = props.getCheckResults(paramSelectedQcRunId)
             checkResultsPromise.then(checkResults => setCheckResults(updatedSelectedCheckResult(checkResults, paramCheckResultId)))
             checkResultsPromise.then(checkResults => setCheckResult(checkResults.find(checkResult => checkResult.isSelected)))
+        } else {
+            setCheckResults([])
         }
         setQcRuns(updateSelectedQcRun(qcRuns, paramSelectedQcRunId))
     }, [paramSelectedQcRunId])
